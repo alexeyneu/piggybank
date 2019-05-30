@@ -9,7 +9,7 @@ contract piggyb
 	constructor() public
 	{
 		cr = msg.sender;
-		unl = now + 11 minutes;
+		unl = now + 11 weeks;
 	}
 	function() external payable
 	{
