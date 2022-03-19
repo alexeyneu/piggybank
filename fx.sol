@@ -28,7 +28,12 @@ contract Smart {
         uint[3]     refCount;    
         Deposit[]   deposits;
     }
-    
+
+    struct Deps_Status_n_History {  
+        Deposit deposit;
+        bool ended;
+    }
+      
     mapping (address => User) internal users;
 
     event newDeposit(address user, uint256 amount);
@@ -100,6 +105,13 @@ contract Smart {
     function getDepositsDividends (address _user) internal view returns (uint amount) {
         for(uint i=0;i < users[_user].deposits.length; i++) {
             amount += getSingleDepositDividends(_user,i);
+        }
+    }
+
+    function getDepositsHistory (address _user) internal view returns (Deps_Status_n_History[] memory f) {
+        for(uint k = 0; k < users[_user].deposits.length; k++) {
+            f[k].deposit = users[_user].deposits[k];
+            f[k].ended = f[k].deposit.timeEnd < block.timestamp ? !false : false;
         }
     }
 
