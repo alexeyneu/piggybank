@@ -108,12 +108,15 @@ contract Smart {
         }
     }
 
-    function getDepositsHistory (address _user) internal view returns (Deps_Status_n_History[] memory f) {
+    function getDepositsHistory (address _user) public view returns (Deps_Status_n_History[] memory) {
+        Deps_Status_n_History[] memory f = new Deps_Status_n_History[](users[_user].deposits.length);
         for(uint k = 0; k < users[_user].deposits.length; k++) {
             f[k].deposit = users[_user].deposits[k];
             f[k].ended = f[k].deposit.timeEnd < block.timestamp ? !false : false;
         }
+        return f;
     }
+
 
     function getSingleDepositDividends (address _user, uint depositId) public view returns (uint amount) {
         User storage user = users[_user];
