@@ -79,6 +79,7 @@ contract Smart {
         for (uint i=0; i < REFERRAL_PERCENTS.length; i++) {
             if(upline==address(0)) break;
             users[upline].refCount[i]++;
+            upline = users[upline].referrer;
         }
 
         emit refInvited(_referrer,_user);
