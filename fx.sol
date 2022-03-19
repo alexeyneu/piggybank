@@ -1,4 +1,5 @@
 pragma solidity 0.8.7;
+pragma experimental ABIEncoderV2;
 
 contract Smart {
     uint constant TIME_STEP = 1 days;
@@ -78,7 +79,6 @@ contract Smart {
         for (uint i=0; i < REFERRAL_PERCENTS.length; i++) {
             if(upline==address(0)) break;
             users[upline].refCount[i]++;
-            upline = users[upline].referrer;  //?
         }
 
         emit refInvited(_referrer,_user);
@@ -92,7 +92,7 @@ contract Smart {
             users[upline].refDividends += amount;
             users[upline].totalRefDividends += amount;
             upline = users[upline].referrer;
-            emit refDividends(upline, _user, i, amount); //may be 0x0
+            emit refDividends(upline, _user, i, amount);
         }
     }
 
@@ -116,7 +116,7 @@ contract Smart {
     }
 
     function withdraw() public  {
-        User storage user = users[msg.sender]; // bad stuff , in this case uses reference so will work
+        User storage user = users[msg.sender];
         uint amount = getDepositsDividends(msg.sender) + user.refDividends;
 
         require(amount > 0, "Nothing to withdraw");
@@ -127,7 +127,8 @@ contract Smart {
         user.totalWithdrawn += amount;
         TOTAL_WITHDRAWN += amount;
 
-        payable(msg.sender).transfer(amount); //deprecated. much gas
+        (bool success, ) = payable(msg.sender).call{value:amount}("");
+        require(success, "Transfer failed.");
         emit withdrawnAmount(msg.sender, amount);
     }
 
@@ -146,7 +147,7 @@ contract Smart {
     }
 
     function getRefData(address _user) public view returns (RefInfo memory refInfo) {
-        User storage user = users[_user]; //bad
+        User storage user = users[_user]; 
 
         refInfo.count = user.refCount;
         refInfo.dividends = user.refDividends;
@@ -154,7 +155,7 @@ contract Smart {
     }
 
     function getFinanceData(address _user) public view returns (UserInfo memory userInfo) {
-        User storage user = users[_user]; //bad
+        User storage user = users[_user]; 
 
         userInfo.available = getDepositsDividends(_user) + user.refDividends;
         userInfo.checkpoint = user.checkpoint;
@@ -168,5 +169,9 @@ contract Smart {
         assembly { size := extcodesize(addr) }
         return size > 0;
     }
-    // no function holds a case when someone just sends money to contract address
+
+   fallback() external payable {
+
+    }
+     
 }
