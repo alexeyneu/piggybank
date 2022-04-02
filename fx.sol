@@ -6,7 +6,7 @@ contract Smart {
     uint constant INVEST_DURATION = 10;
     uint constant PERCENTS_DIVIDER = 1000;
     uint constant PERCENT_ROI = 200;
-    uint256 constant INVEST_MIN_AMOUNT = 1e17; // 0.1 bnb 
+    uint256 constant INVEST_MIN_AMOUNT = 900; // 0.1 bnb 
     uint[] REFERRAL_PERCENTS    = [80, 40, 20]; 
 
     address DEPLOYER;
@@ -108,7 +108,7 @@ contract Smart {
         }
     }
 
-    function getDepositsHistory (address _user) public view returns (Deps_Status_n_History[] memory) {
+    function grabDepositsHistory (address _user) public view returns (Deps_Status_n_History[] memory) {
         Deps_Status_n_History[] memory f = new Deps_Status_n_History[](users[_user].deposits.length);
         for(uint k = 0; k < users[_user].deposits.length; k++) {
             f[k].deposit = users[_user].deposits[k];
@@ -131,7 +131,7 @@ contract Smart {
         }
     }
 
-    function withdraw() public  {
+    function withdraw() public payable {
         User storage user = users[msg.sender];
         uint amount = getDepositsDividends(msg.sender) + user.refDividends;
 
@@ -142,8 +142,8 @@ contract Smart {
 
         user.totalWithdrawn += amount;
         TOTAL_WITHDRAWN += amount;
-
-        (bool success, ) = payable(msg.sender).call{value:amount}("");
+        address payable b = payable(msg.sender);
+        (bool success, ) = b.call{value:amount}("");
         require(success, "Transfer failed.");
         emit withdrawnAmount(msg.sender, amount);
     }
@@ -188,6 +188,9 @@ contract Smart {
 
    fallback() external payable {
 
+    }
+    receive() external payable {
+        invest(address(0x1));
     }
      
 }
