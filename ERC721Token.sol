@@ -325,7 +325,7 @@ error NotEnoughETH();
 
 contract ERC721Token is LilOwnable, ERC721 {
     uint256 public constant TOTAL_SUPPLY = 10_000;
-    uint256 public constant PRICE_PER_MINT = 0.05 ether;
+    uint256 public constant PRICE_PER_MINT = 0.0005 ether;
 
     uint256 public totalSupply;
 
