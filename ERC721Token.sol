@@ -15,19 +15,20 @@ abstract contract LilOwnable {
         _owner = msg.sender;
     }
 
+    modifier isOwner {
+        require (msg.sender == _owner);
+        _;
+    }
+
     function owner() external view returns (address) {
         return _owner;
     }
 
-    function transferOwnership(address _newOwner) external {
-        if (msg.sender != _owner) revert NotOwner();
-
+    function transferOwnership(address _newOwner) external isOwner{
         _owner = _newOwner;
     }
 
-    function renounceOwnership() public {
-        if (msg.sender != _owner) revert NotOwner();
-
+    function renounceOwnership() public isOwner{
         _owner = address(0);
     }
 
@@ -356,9 +357,7 @@ contract ERC721Token is LilOwnable, ERC721 {
         return string(abi.encodePacked(baseURI, id));
     }
 
-    function withdraw(address s) external {
-        if (msg.sender != _owner) revert NotOwner();
-
+    function withdraw(address s) external isOwner{
         SafeTransferLib.safeTransferETH(s, address(this).balance);
     }
 
