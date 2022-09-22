@@ -323,14 +323,16 @@ library SafeTransferLib {
 error DoesNotExist();
 error NoTokensLeft();
 error NotEnoughETH();
+error MintLimitReached();
 
 contract ERC721Token is LilOwnable, ERC721 {
     uint256 public constant TOTAL_SUPPLY = 10_000;
     uint256 public constant PRICE_PER_MINT = 0.0005 ether;
+    uint256 public constant MAX_PER_USR_MINT = 15;
 
     uint256 public totalSupply;
-
     string public baseURI;
+    mapping(address => uint256) public perUsrMint;
 
     constructor(
         string memory name,
@@ -343,10 +345,12 @@ contract ERC721Token is LilOwnable, ERC721 {
     function mint(uint16 amount) external payable {
         if (totalSupply + amount >= TOTAL_SUPPLY) revert NoTokensLeft();
         if (msg.value < amount * PRICE_PER_MINT) revert NotEnoughETH();
+        if (perUsrMint[msg.sender] + amount > PRICE_PER_MINT) revert MintLimitReached();
 
         unchecked {
             for (uint16 index = 0; index < amount; index++) {
                 _mint(msg.sender, totalSupply++);
+                perUsrMint[msg.sender]++;                
             }
         }
     }
