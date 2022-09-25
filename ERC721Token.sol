@@ -16,7 +16,7 @@ abstract contract LilOwnable {
     }
 
     modifier isOwner {
-        require (msg.sender == _owner);
+        if (msg.sender != _owner) revert NotOwner();
         _;
     }
 
